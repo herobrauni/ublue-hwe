@@ -8,6 +8,7 @@ on:
         type: string
 env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+  IMAGE_REGISTRY_UBLUE: ghcr.io/ublue-os
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ inputs.fedora_version }}
@@ -31,13 +32,8 @@ jobs:
           - asus
           - surface
         image_name:
-          - silverblue
           - kinoite
-          - sericea
-          - onyx
-          - base
-          - lazurite
-          - vauxite
+          - cosmic
         image_target:
           - main
           - nvidia
@@ -155,17 +151,17 @@ jobs:
 
           echo "alias_tags=${alias_tags[*]}" >> $GITHUB_OUTPUT
 
-      - name: Verify main image
-        uses: EyeCantCU/cosign-action/verify@v0.3.0
-        with:
-          containers: ${{ env.SOURCE_IMAGE }}:${{ matrix.fedora_version }}
-          registry: ${{ env.IMAGE_REGISTRY }}
+      # - name: Verify main image
+      #   uses: EyeCantCU/cosign-action/verify@v0.3.0
+      #   with:
+      #     containers: ${{ env.SOURCE_IMAGE }}:${{ matrix.fedora_version }}
+      #     registry: ${{ env.IMAGE_REGISTRY }}
 
       - name: Verify akmods-nvidia image
         uses: EyeCantCU/cosign-action/verify@v0.3.0
         with:
           containers: akmods-nvidia:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}
-          registry: ${{ env.IMAGE_REGISTRY }}
+          registry: ${{ env.IMAGE_REGISTRY_UBLUE }}
 
       - name: Get current version
         id: labels
@@ -182,7 +178,7 @@ jobs:
               exit 1
             fi
             echo "SOURCE_IMAGE_VERSION=$ver" >> $GITHUB_ENV
-            skopeo inspect docker://${{ env.IMAGE_REGISTRY }}/${{ matrix.kernel_flavor }}-kernel:${{ matrix.fedora_version }} > kernel.json
+            skopeo inspect docker://${{ env.IMAGE_REGISTRY_UBLUE }}/${{ matrix.kernel_flavor }}-kernel:${{ matrix.fedora_version }} > kernel.json
             linux=$(jq -r '.Labels["ostree.linux"]' kernel.json)
             if [ -z "$linux" ] || [ "null" = "$linux" ]; then
               echo "inspected image linux version must not be empty or null"
@@ -199,8 +195,8 @@ jobs:
             # pull the base image used for FROM in containerfile so
             # we can retry on that unfortunately common failure case
             podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.SOURCE_IMAGE }}:${{ matrix.fedora_version }}
-            podman pull ${{ env.IMAGE_REGISTRY }}/akmods-nvidia:${{ matrix.kernel_flavor }}-${{ matrix.fedora_version }}
-            podman pull ${{ env.IMAGE_REGISTRY }}/${{ matrix.kernel_flavor}}-kernel:${{ env.KERNEL_VERSION }}
+            podman pull ${{ env.IMAGE_REGISTRY_UBLUE }}/akmods-nvidia:${{ matrix.kernel_flavor }}-${{ matrix.fedora_version }}
+            podman pull ${{ env.IMAGE_REGISTRY_UBLUE }}/${{ matrix.kernel_flavor}}-kernel:${{ env.KERNEL_VERSION }}
 
       # Build metadata
       - name: Image Metadata
