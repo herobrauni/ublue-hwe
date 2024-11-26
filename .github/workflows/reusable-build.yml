@@ -29,8 +29,6 @@ jobs:
           - ${{ inputs.fedora_version }}
         kernel_flavor:
           - main
-          - asus
-          - surface
         image_name:
           - kinoite
           - cosmic
