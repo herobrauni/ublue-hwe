@@ -1,12 +1,13 @@
 ARG IMAGE_NAME="${IMAGE_NAME:-silverblue}"
 ARG SOURCE_IMAGE="${SOURCE_IMAGE:-silverblue-main}"
-ARG SOURCE_ORG="${SOURCE_ORG:-ublue-os}"
+ARG SOURCE_ORG="${SOURCE_ORG:-herobrauni}"
+ARG SOURCE_ORG_UBLUE="${SOURCE_ORG:-ublue-os}"
 ARG BASE_IMAGE="ghcr.io/${SOURCE_ORG}/${SOURCE_IMAGE}"
 ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-40}"
 ARG KERNEL_FLAVOR="${KERNEL_FLAVOR:-main}"
 ARG KERNEL_VERSION="${KERNEL_VERSION:-6.9.7-200.fc40.x86_64}"
 
-FROM ghcr.io/${SOURCE_ORG}/${KERNEL_FLAVOR}-kernel:${KERNEL_VERSION} AS kernel
+FROM ghcr.io/${SOURCE_ORG_UBLUE}/${KERNEL_FLAVOR}-kernel:${KERNEL_VERSION} AS kernel
 FROM scratch AS ctx
 COPY / /
 
@@ -31,11 +32,11 @@ RUN --mount=type=cache,dst=/var/cache/rpm-ostree \
     mkdir -p /var/tmp && \
     chmod -R 1777 /var/tmp
 
-FROM ghcr.io/${SOURCE_ORG}/akmods-nvidia:${KERNEL_FLAVOR}-${FEDORA_MAJOR_VERSION} AS akmods_nvidia
+FROM ghcr.io/${SOURCE_ORG_UBLUE}/akmods-nvidia:${KERNEL_FLAVOR}-${FEDORA_MAJOR_VERSION} AS akmods_nvidia
 
 FROM main AS nvidia
 
-ARG SOURCE_ORG="${SOURCE_ORG:-ublue-os}"
+ARG SOURCE_ORG="${SOURCE_ORG:-herobrauni}"
 ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-40}"
 ARG KERNEL_FLAVOR="${KERNEL_FLAVOR:-main}"
 ARG IMAGE_NAME="${IMAGE_NAME:-silverblue}"
